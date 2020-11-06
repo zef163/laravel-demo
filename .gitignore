@@ -1,0 +1,24 @@
+# General
+.DS_Store
+
+# Code editors
+.idea
+.vscode
+
+# Docker
+/.*_history
+/.composer
+
+# Laravel
+/node_modules
+/public/hot
+/public/storage
+/public/docs
+/public/robots.txt
+/resources/docs
+/public/sitemap*
+/storage/*.key
+/vendor
+.env
+npm-debug.log
+yarn-error.log

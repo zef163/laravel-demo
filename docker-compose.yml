@@ -1,0 +1,65 @@
+version: "3.8"
+
+# Volumes
+volumes:
+  mysql-demo:
+    driver: local
+  elastic-demo:
+    driver: local
+
+services:
+  # PHP
+  php-demo:
+    build:
+      context: ./
+      dockerfile: docker/php/Dockerfile
+    container_name: php-demo
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html/:cached
+      - ./docker/php/000-default.conf:/etc/apache2/sites-available/000-default.conf
+    ports:
+      - 80:80
+    networks:
+      - demo-network
+
+  # MySQL
+  db-demo:
+    image: mysql:8.0
+    container_name: db-demo
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql-demo:/var/lib/mysql
+    expose:
+      - 3306
+    networks:
+      - demo-network
+
+  # Elasticsearch
+  elasticsearch-demo:
+    build:
+      context: ./
+      dockerfile: docker/elastic/Dockerfile
+    container_name: elastic-demo
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+    expose:
+      - 9200
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elastic-demo:/usr/share/elasticsearch/data
+    networks:
+      - demo-network
+
+# Networks
+networks:
+  demo-network:
+    driver: bridge
