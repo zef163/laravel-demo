@@ -10,6 +10,7 @@ install: ./.env ## Build the containers
 	@docker-compose up -d
 	@docker exec php-demo php artisan key:generate
 	@docker exec php-demo composer install
+	@docker exec php-demo php artisan migrate --step
 	@docker exec php-demo php artisan search:create
 
 seed: ## Seed database

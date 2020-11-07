@@ -53,18 +53,20 @@ class Search extends Command
             $elastic->createIndices($arr['index']);
 
             // Index items
-            $params = ['body' => []];
-            foreach ($arr['items'] as $item) {
-                $params['body'][] = [
-                    'index' => [
-                        '_index' => $arr['index'],
-                        '_id' => $item->id,
-                    ],
-                ];
+            if ($arr['items']->isNotEmpty()) {
+                $params = ['body' => []];
+                foreach ($arr['items'] as $item) {
+                    $params['body'][] = [
+                        'index' => [
+                            '_index' => $arr['index'],
+                            '_id' => $item->id,
+                        ],
+                    ];
 
-                $params['body'][] = $item->toArray();
+                    $params['body'][] = $item->toArray();
+                }
+                $elastic->getClient()->bulk($params);
             }
-            $elastic->getClient()->bulk($params);
         }
 
         return 0;

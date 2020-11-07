@@ -20,6 +20,20 @@ class Elasticsearch
     protected Client $client;
 
     /**
+     * @var array Searchable fields
+     */
+    protected array $fields = [
+        'users' => [
+            'name^5',
+            'email',
+        ],
+        'tasks' => [
+            'title^5',
+            'description^3',
+        ],
+    ];
+
+    /**
      * Elasticsearch constructor.
      */
     public function __construct()
@@ -174,13 +188,8 @@ class Elasticsearch
 
         // Query string
         if (!empty($query)) {
-            $fields = array_filter(
-                DB::getSchemaBuilder()->getColumnListing($index),
-                fn(string $key) => !in_array($key, ['id', 'created_at', 'updated_at', 'deleted_at', 'email_verified_at']),
-            );
-
             Arr::set($body, 'query.bool.must.multi_match', [
-                'fields' => array_values($fields),
+                'fields' => $this->fields[$index],
                 'query' => sprintf('%s, %s', preg_replace('/(\w{3,})/', '$1~', $query), $query),
                 'type' => 'bool_prefix',
                 'fuzziness' => 'auto',
